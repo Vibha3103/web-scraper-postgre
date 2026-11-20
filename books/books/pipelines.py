@@ -1,13 +1,40 @@
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+import os
+import psycopg2
 
+class PostgresPipeline:
+    def open_spider(self,spider):
+        #connect to Postgresql
+        self.connection = psycopg2.connect(
+            host=os.environ["PGHOST"],
+            port=os.environ["PGPORT"],
+            database=os.environ["PGDATABASE"],
+            user=os.environ["PGUSER"],
+            password=os.environ["PGPASSWORD"]
+        )
+        self.cursor = self.connection.cursor()
+        print("Connected to Postgres sucessfully!")
 
-# useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
+    def process_item(self,item,spider):
+        #Insert book details into PostgreSQL
+        self.cursor.execute(
+            """
+            INSERT INTO books (title, price, url)
+            VALUES (%s,%s,%s)
+            ON CONFLICT (url) DO NOTHING
+            """ ,
+            (
+                item["title"],
+                item["price"],
+                item["url"]
+            )
 
+        )
+        self.connection.commit()
+        return item 
 
-class BooksPipeline:
-    def process_item(self, item):
-        return item
+    def close_spider(self,spider):
+        #close database connection
+        self.cursor.close()
+        self.connection.close()
+        print("PostgreSQL connection closed!")
+    

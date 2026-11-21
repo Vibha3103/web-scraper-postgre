@@ -17,6 +17,11 @@ ADDONS = {}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "books (+http://www.yourdomain.com)"
+USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+              "AppleWebKit/537.36 (KHTML, like Gecko)"
+              "Chrome/153.0.0.0 Safari/537.36"
+            )
+ 
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -46,9 +51,10 @@ DOWNLOAD_DELAY = 1
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    "books.middlewares.BooksDownloaderMiddleware": 543,
-#}
+DOWNLOADER_MIDDLEWARES = {
+    "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
+    "scrapy_user_agents.middlewares.RandomUserAgentMiddleware": 400,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -87,3 +93,15 @@ ITEM_PIPELINES = {
 DOWNLOADER_MIDDLEWARE_RESPONSE_EXCEPTIONS = True
 FEED_EXPORT_ENCODING = "utf-8"
 FEED_MODE = "create"
+
+#Log level
+LOG_LEVEL = "WARNING"
+LOG_FILE = "book_scraper.log"
+
+#Retry settings
+RETRY_TIMES = 3
+RETRY_HTTP_CODES = [500,429]
+
+DOWNLOAD_DELAY = 2
+ROBOTSTXT_OBEY = True
+
